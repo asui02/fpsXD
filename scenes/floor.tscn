@@ -1,0 +1,108 @@
+[gd_scene load_steps=15 format=3 uid="uid://bpmrq8x5vz6ab"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(50, 0.5, 50)
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(50, 0.5, 50)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.25, 0.25, 0.25, 1)
+roughness = 0.7
+metallic = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cube"]
+albedo_color = Color(0.8, 0.3, 0.2, 1)
+roughness = 0.5
+metallic = 0.2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_big1"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_big1"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_big2"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_big2"]
+size = Vector3(3, 3, 3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_small1"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_small1"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_small2"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_small2"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_small3"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_small3"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[node name="Floor" type="Node3D"]
+
+[node name="StaticBody" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape" type="CollisionShape3D" parent="StaticBody"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="Mesh" type="MeshInstance3D" parent="StaticBody"]
+mesh = SubResource("BoxMesh_floor")
+material_override = SubResource("StandardMaterial3D_floor")
+
+[node name="BigCube1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1.5, -15)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="BigCube1"]
+shape = SubResource("BoxShape3D_big1")
+
+[node name="Mesh" type="MeshInstance3D" parent="BigCube1"]
+mesh = SubResource("BoxMesh_big1")
+material_override = SubResource("StandardMaterial3D_cube")
+
+[node name="BigCube2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.5, -10)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="BigCube2"]
+shape = SubResource("BoxShape3D_big2")
+
+[node name="Mesh" type="MeshInstance3D" parent="BigCube2"]
+mesh = SubResource("BoxMesh_big2")
+material_override = SubResource("StandardMaterial3D_cube")
+
+[node name="SmallCube1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.75, 5)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube1"]
+shape = SubResource("BoxShape3D_small1")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube1"]
+mesh = SubResource("BoxMesh_small1")
+material_override = SubResource("StandardMaterial3D_cube")
+
+[node name="SmallCube2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.75, 10)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube2"]
+shape = SubResource("BoxShape3D_small2")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube2"]
+mesh = SubResource("BoxMesh_small2")
+material_override = SubResource("StandardMaterial3D_cube")
+
+[node name="SmallCube3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.75, -5)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube3"]
+shape = SubResource("BoxShape3D_small3")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube3"]
+mesh = SubResource("BoxMesh_small3")
+material_override = SubResource("StandardMaterial3D_cube")
