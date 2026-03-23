@@ -6,7 +6,7 @@ signal connection_failed
 signal player_connected(id: int)
 signal player_disconnected(id: int)
 
-const PLAYER_SCENE := preload("res://scenes/multiplayer_player.tscn")
+const PLAYER_SCENE := preload("res://units/player.tscn")
 
 var server_port: int = 7777
 var max_players: int = 8

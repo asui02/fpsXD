@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://ckc44ljdhs2y"]
 
 [ext_resource type="PackedScene" uid="uid://bpmrq8x5v06ab" path="res://scenes/floor.tscn" id="1_floor"]
-[ext_resource type="PackedScene" uid="uid://c7pg1o5p4ijpe" path="res://scenes/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/multiplayer_menu.tscn" id="3_menu"]
 [ext_resource type="Script" uid="uid://q0la3sqc7jed" path="res://scripts/network_manager.gd" id="4_network_script"]
 [ext_resource type="Script" uid="uid://d3eixyf48f8iq" path="res://scripts/multiplayer_menu.gd" id="5_menu_script"]
@@ -14,9 +13,6 @@ glow_enabled = true
 [node name="Main" type="Node3D" unique_id=1734070863]
 
 [node name="Floor" parent="." unique_id=2007260660 instance=ExtResource("1_floor")]
-
-[node name="Player" parent="." unique_id=230516121 instance=ExtResource("2_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.3342295, 0)
 
 [node name="NetworkManager" type="Node" parent="." unique_id=1818978202]
 script = ExtResource("4_network_script")

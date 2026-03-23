@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://mp_player001"]
-
-[ext_resource type="Script" path="res://scripts/multiplayer_player.gd" id="1_mp_player_script"]
-
-[node name="MultiplayerPlayer" type="CharacterBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
-multiplayer_id = 1
-is_local_player = false
-script = ExtResource("1_mp_player_script")

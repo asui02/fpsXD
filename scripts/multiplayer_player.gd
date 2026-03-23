@@ -11,11 +11,26 @@ class_name MultiplayerPlayer
 @export var camera_fov: float = 75.0
 
 @export_group("Network")
+# ✅ Метод определения оставлен как в старой версии (через экспорт)
 @export var is_local_player: bool = false
 
-var camera_pivot: Node3D
-var camera: Camera3D
-var mesh: MeshInstance3D
+# Ссылки на узлы, которые теперь создаются в сцене
+@onready var camera_pivot: Node3D = $CameraPivot
+@onready var camera: Camera3D = $CameraPivot/Camera
+@onready var mesh: MeshInstance3D = $CapsuleMesh
+@onready var weapon_socket: Node3D = $CameraPivot/WeaponSocket
+# Коллизия настраивается в редакторе (CollisionShape3D)
+
+# --- ОРУЖИЕ ---
+@export_group("Weapon")
+const BULLET_SCENE: PackedScene = preload("res://units/Bullet.tscn")
+
+
+var health: float = 100.0
+
+var can_shoot: bool = true
+var fire_rate: float = 0.15  # Задержка между выстрелами
+
 var multiplayer_id: int = 1
 
 # Network sync
@@ -26,40 +41,25 @@ var position_smooth: float = 0.1
 func _ready() -> void:
 	multiplayer_id = multiplayer.get_unique_id()
 
-	# ✅ ВСЕГДА создаём коллизию
-	var collision = CollisionShape3D.new()
-	var capsule_shape = CapsuleShape3D.new()
-	capsule_shape.radius = 0.4
-	capsule_shape.height = 1.0
-	collision.shape = capsule_shape
-
-	var total_height = capsule_shape.height + capsule_shape.radius * 2
-	collision.position.y = total_height / 2
-
-	add_child(collision)
-
-	# Camera
-	camera_pivot = Node3D.new()
+	# Настройка камеры
+	camera.fov = camera_fov
 	camera_pivot.position.y = camera_height
-	add_child(camera_pivot)
-
-	camera = Camera3D.new()
-	camera_pivot.add_child(camera)
 
 	if is_local_player:
+		# Локальный игрок
 		camera.current = true
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		# Скрываем меш, чтобы не видеть себя изнутри
+		if mesh:
+			mesh.visible = false
 	else:
-		# только визуал
-		mesh = MeshInstance3D.new()
-		var capsule_mesh = CapsuleMesh.new()
-		capsule_mesh.radius = 0.4
-		capsule_mesh.height = 1.0
-		mesh.mesh = capsule_mesh
-		mesh.position.y = total_height / 2
-		add_child(mesh)
+		# Удалённый игрок (только визуал)
+		camera.current = false
+		if mesh:
+			mesh.visible = true
 
 func _input(event: InputEvent) -> void:
+	# ✅ Проверка локального игрока как в старой версии
 	if not is_local_player:
 		return
 	
@@ -70,15 +70,19 @@ func _input(event: InputEvent) -> void:
 		camera_pivot.rotate_x(-mouse_delta.y * mouse_sensitivity)
 		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, -PI/2, PI/2)
 		
-		# Send rotation to other players
 		rpc("sync_rotation", rotation.y, camera_pivot.rotation.x)
+	
+	# Стрельба
+	if Input.is_action_pressed("shoot") and can_shoot:
+		shoot()
 
 func _physics_process(delta: float) -> void:
 	if not is_local_player:
 		# Remote player: smooth interpolation
-		position = lerp(position, network_position, position_smooth)
+		global_position = lerp(global_position, network_position, position_smooth)
 		rotation.y = lerp_angle(rotation.y, network_rotation.y, position_smooth)
-		camera_pivot.rotation.x = lerp(camera_pivot.rotation.x, network_rotation.x, position_smooth)
+		if camera_pivot:
+			camera_pivot.rotation.x = lerp(camera_pivot.rotation.x, network_rotation.x, position_smooth)
 		return
 	
 	# Local player physics
@@ -103,7 +107,44 @@ func _physics_process(delta: float) -> void:
 	# Send position to other players
 	rpc("sync_position", global_position)
 
+func shoot() -> void:
+	can_shoot = false
+	get_tree().create_timer(fire_rate).timeout.connect(func(): can_shoot = true)
+	
+	var shoot_dir = -camera.global_transform.basis.z
+	spawn_bullet(shoot_dir)
+	
+	rpc_id(multiplayer_id, "rpc_spawn_bullet", shoot_dir)
+
+@rpc("any_peer", "call_remote", "unreliable")
+func rpc_spawn_bullet(dir: Vector3) -> void:
+	spawn_bullet(dir)
+
+func spawn_bullet(dir: Vector3) -> void:
+	var bullet = BULLET_SCENE.instantiate()
+	
+	# Если WeaponSocket не найден — спавним у камеры
+	var spawn_pos = weapon_socket.global_position if weapon_socket else camera_pivot.global_position
+	
+	bullet.global_position = spawn_pos
+	bullet.initialize(dir, multiplayer_id)
+	
+	get_tree().current_scene.add_child(bullet)
+	
+func take_damage(amount: float, from_id: int) -> void:
+	health -= amount
+	print("Player ", multiplayer_id, " got damage. Health: ", health)
+	
+	if health <= 0:
+		die(from_id)
+
+func die(killer_id: int) -> void:
+	print("Player ", multiplayer_id, " was killed by ", killer_id)
+	# Логика смерти (респаун, счет и т.д.)
+	queue_free() # Или отключить управление
+	
 # RPC functions for network sync
+# ✅ Вернул "reliable" как в старой версии
 @rpc("any_peer", "call_remote", "reliable")
 func sync_position(pos: Vector3) -> void:
 	if is_local_player:
@@ -115,7 +156,8 @@ func sync_rotation(rot_y: float, pitch: float) -> void:
 	if is_local_player:
 		return
 	network_rotation = Vector3(0, rot_y, 0)
-	camera_pivot.rotation.x = pitch
+	if camera_pivot:
+		camera_pivot.rotation.x = pitch
 
 @rpc("any_peer", "call_remote", "reliable")
 func set_multiplayer_id(id: int) -> void:

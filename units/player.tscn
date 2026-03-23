@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://c7pg1o5p4ijpe"]
+
+[ext_resource type="Script" uid="uid://kj2shg0vpbor" path="res://scripts/multiplayer_player.gd" id="1_wegok"]
+[ext_resource type="PackedScene" uid="uid://xen2uvqbfkoe" path="res://n_4a_4.tscn" id="2_yufpt"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_g2els"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
+radius = 0.4
+height = 1.8
+
+[node name="Player" type="CharacterBody3D" unique_id=132790890]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+script = ExtResource("1_wegok")
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=606961944]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
+
+[node name="Camera" type="Camera3D" parent="CameraPivot" unique_id=968583302]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraPivot/Camera" unique_id=315755356]
+mesh = SubResource("SphereMesh_g2els")
+
+[node name="N4A4" parent="CameraPivot" unique_id=1934699147 instance=ExtResource("2_yufpt")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.2, -0.467, -0.8)
+
+[node name="WeaponSocket" type="Node3D" parent="CameraPivot" unique_id=771395905]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.19999999, -0.39198756, -1.7739536)
+
+[node name="CapsuleCollision" type="CollisionShape3D" parent="." unique_id=900825679]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -0.0007054806, 0)
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="CapsuleMesh" type="MeshInstance3D" parent="." unique_id=1439698143]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_player")
