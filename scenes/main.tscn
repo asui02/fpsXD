@@ -16,6 +16,7 @@ glow_enabled = true
 [node name="Floor" parent="." unique_id=2007260660 instance=ExtResource("1_floor")]
 
 [node name="Player" parent="." unique_id=230516121 instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.3342295, 0)
 
 [node name="NetworkManager" type="Node" parent="." unique_id=1818978202]
 script = ExtResource("4_network_script")

@@ -25,42 +25,39 @@ var position_smooth: float = 0.1
 
 func _ready() -> void:
 	multiplayer_id = multiplayer.get_unique_id()
-	
-	# Setup camera pivot
+
+	# ✅ ВСЕГДА создаём коллизию
+	var collision = CollisionShape3D.new()
+	var capsule_shape = CapsuleShape3D.new()
+	capsule_shape.radius = 0.4
+	capsule_shape.height = 1.0
+	collision.shape = capsule_shape
+
+	var total_height = capsule_shape.height + capsule_shape.radius * 2
+	collision.position.y = total_height / 2
+
+	add_child(collision)
+
+	# Camera
 	camera_pivot = Node3D.new()
-	camera_pivot.name = "CameraPivot"
 	camera_pivot.position.y = camera_height
 	add_child(camera_pivot)
-	
-	# Setup camera
+
 	camera = Camera3D.new()
-	camera.name = "Camera"
-	camera.fov = camera_fov
 	camera_pivot.add_child(camera)
-	
-	# Only local player has current camera
+
 	if is_local_player:
 		camera.current = true
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	else:
-		# Remote players: hide camera, show mesh
-		camera.current = false
+		# только визуал
 		mesh = MeshInstance3D.new()
 		var capsule_mesh = CapsuleMesh.new()
 		capsule_mesh.radius = 0.4
-		capsule_mesh.height = 1.8
+		capsule_mesh.height = 1.0
 		mesh.mesh = capsule_mesh
-		mesh.position.y = 0.9
+		mesh.position.y = total_height / 2
 		add_child(mesh)
-		
-		# Setup collision
-		var collision = CollisionShape3D.new()
-		var capsule_shape = CapsuleShape3D.new()
-		capsule_shape.radius = 0.4
-		capsule_shape.height = 1.8
-		collision.shape = capsule_shape
-		collision.position.y = 0.9
-		add_child(collision)
 
 func _input(event: InputEvent) -> void:
 	if not is_local_player:
