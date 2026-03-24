@@ -9,7 +9,8 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ewpb"]
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 16.0
+emission_energy_multiplier = 1000.0
+disable_receive_shadows = true
 grow_amount = -0.5
 
 [node name="Area3D" type="Area3D" unique_id=1793348053]
@@ -20,6 +21,10 @@ transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 shape = SubResource("SphereShape3D_rtl8c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D" unique_id=40396463]
-transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0)
+transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 mesh = SubResource("SphereMesh_rtl8c")
 surface_material_override/0 = SubResource("StandardMaterial3D_1ewpb")
+
+[node name="RayCast3D" type="RayCast3D" parent="." unique_id=773206258]
+target_position = Vector3(0, 0, 1)
+collision_mask = 65535

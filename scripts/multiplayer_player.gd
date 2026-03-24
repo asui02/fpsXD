@@ -2,9 +2,10 @@ extends CharacterBody3D
 class_name MultiplayerPlayer
 
 @export_group("Player")
+@export var crouchOffset: float = 1.0
 @export var speed: float = 5.0
-@export var jump_velocity: float = 4.5
-@export var mouse_sensitivity: float = 0.002
+@export var jump_velocity: float = 8
+@export var mouse_sensitivity: float = 0.001
 
 @export_group("Camera")
 @export var camera_height: float = 1.6
@@ -18,8 +19,9 @@ class_name MultiplayerPlayer
 @onready var camera_pivot: Node3D = $CameraPivot
 @onready var camera: Camera3D = $CameraPivot/Camera
 @onready var mesh: MeshInstance3D = $CapsuleMesh
-@onready var weapon_socket: Node3D = $WeaponModelPivot/N4A4/WeaponSocket
-@onready var weapon_model1: Node3D = $WeaponModelPivot/N4A4
+@onready var collider: CollisionShape3D = $CapsuleCollision
+@onready var weapon_socket: Node3D = $WeaponModelPivot/N5A4/WeaponSocket
+@onready var weapon_model1: Node3D = $WeaponModelPivot/N5A4
 @onready var weapon_model: Node3D = $WeaponModelPivot
 # Коллизия настраивается в редакторе (CollisionShape3D)
 
@@ -31,12 +33,14 @@ var time: float = 0.0
 var health: float = 100.0
 
 var can_shoot: bool = true
-var fire_rate: float = 0.1  # Задержка между выстрелами
+var fire_rate: float = 0.07  # Задержка между выстрелами
 var fire_timer: float = 0.0
 
 var multiplayer_id: int = 1
 
+var CameraPivotStartPos: Vector3
 var WeaponPivotStartPos: Vector3
+var WeaponPivotStartPosNonCrouch: Vector3
 var WeaponPivotStartRot: Vector3
 var WeaponPivot1StartRot: Vector3
 var Weapon_SocketStartRot: Vector3
@@ -47,9 +51,13 @@ var network_rotation: Vector3
 var position_smooth: float = 0.1
 
 var sprint: bool = false
+var crouch: bool = false
+var movementSpeedMultiplier: float = 0.0
 
 func _ready() -> void:
+	CameraPivotStartPos = camera_pivot.position
 	WeaponPivotStartPos = weapon_model.position
+	WeaponPivotStartPosNonCrouch = weapon_model.position
 	WeaponPivot1StartRot = weapon_model1.rotation
 	Weapon_SocketStartRot = weapon_socket.rotation
 	multiplayer_id = multiplayer.get_unique_id()
@@ -97,14 +105,29 @@ func _process(delta: float) -> void:
 		return
 	
 	# ✅ Автоматическая стрельба: проверяем каждый кадр
-	if Input.is_action_pressed("sprint"):
-		sprint = true
-	else:
+	if Input.is_action_pressed("crouch"):
 		sprint = false
+		crouch = true
+	else:
+		crouch = false
+		if Input.is_action_pressed("sprint"):
+			sprint = true
+		else:
+			sprint = false
 	if Input.is_action_pressed("shoot") and can_shoot:
 		shoot()
 
 func _physics_process(delta: float) -> void:
+	if crouch:
+		collider.scale.y = lerp(collider.scale.y, 0.5, delta*10)
+		collider.position.y = lerp(collider.position.y, 0.7, delta*10)
+		#camera_pivot.position.y = lerp(camera_pivot.position.y, CameraPivotStartPos.y - crouchOffset, delta * 10)
+		#WeaponPivotStartPos.y = lerp(WeaponPivotStartPos.y, WeaponPivotStartPosNonCrouch.y - crouchOffset, delta * 20)
+	else:
+		collider.scale.y = lerp(collider.scale.y, 1.5, delta*10)
+		collider.position.y = lerp(collider.position.y, 0.0, delta*10)
+		#camera_pivot.position.y = lerp(camera_pivot.position.y, CameraPivotStartPos.y, delta * 10)
+		#WeaponPivotStartPos.y = lerp(WeaponPivotStartPos.y, WeaponPivotStartPosNonCrouch.y, delta * 20)
 	if sprint:
 		can_shoot = false
 	else:
@@ -124,7 +147,7 @@ func _physics_process(delta: float) -> void:
 	
 	# Local player physics
 	if not is_on_floor():
-		velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta
+		velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta * 2
 	
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
@@ -135,18 +158,28 @@ func _physics_process(delta: float) -> void:
 	weapon_socket.rotation = lerp(weapon_socket.rotation, Weapon_SocketStartRot, delta * 0.1)
 	
 	if direction:
-		if sprint:
-			velocity.x = direction.x * 2.25 * speed
-			velocity.z = direction.z * 2.25 * speed
-			weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.05)), delta * 40)
-			weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.05), delta * 40)
-			weapon_model1.rotation.y = lerp(weapon_model1.rotation.y,WeaponPivot1StartRot.y + PI/3, delta * 10)
-		else:
-			velocity.x = direction.x * speed
-			velocity.z = direction.z * speed
-			weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.02)), delta * 10)
-			weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.02), delta * 10)
+		if crouch:
+			movementSpeedMultiplier = lerp(movementSpeedMultiplier, 0.4, delta * 10)
+			velocity.x = direction.x * movementSpeedMultiplier * speed
+			velocity.z = direction.z * movementSpeedMultiplier * speed
+			weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*3)*0.05)), delta * 40)
+			weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*3)*0.05), delta * 40)
 			weapon_model1.rotation.y = lerp(weapon_model1.rotation.y, WeaponPivot1StartRot.y, delta * 10)
+		else:
+			if sprint:
+				movementSpeedMultiplier = lerp(movementSpeedMultiplier, 2.25, delta * 10)
+				velocity.x = direction.x * movementSpeedMultiplier * speed
+				velocity.z = direction.z * movementSpeedMultiplier * speed
+				weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.05)), delta * 40)
+				weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.05), delta * 40)
+				weapon_model1.rotation.y = lerp(weapon_model1.rotation.y,WeaponPivot1StartRot.y + PI/3, delta * 10)
+			else:
+				movementSpeedMultiplier = lerp(movementSpeedMultiplier, 1.0, delta * 10)
+				velocity.x = direction.x * speed * movementSpeedMultiplier
+				velocity.z = direction.z * speed * movementSpeedMultiplier
+				weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.02)), delta * 10)
+				weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.02), delta * 10)
+				weapon_model1.rotation.y = lerp(weapon_model1.rotation.y, WeaponPivot1StartRot.y, delta * 10)
 		time += delta  # Увеличиваем время каждый кадр
 		var value = sin(time) 
 		weapon_model.position.z = lerp(weapon_model.position.z, WeaponPivotStartPos.z, delta * 10)
@@ -174,7 +207,6 @@ func shoot() -> void:
 func animShoot() -> void:
 	weapon_model.position.z = WeaponPivotStartPos.z + 0.05
 	weapon_model.rotation = weapon_model.rotation - Vector3.LEFT * 0.03 * (randf_range(-1, 1))
-	weapon_model.rotation = weapon_model.rotation - Vector3.RIGHT * 0.03 * (randf_range(-1, 1))
 	
 
 @rpc("any_peer", "call_remote", "unreliable")

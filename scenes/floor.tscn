@@ -87,6 +87,59 @@ shape = SubResource("BoxShape3D_small1")
 material_override = SubResource("StandardMaterial3D_cube")
 mesh = SubResource("BoxMesh_small1")
 
+[node name="SmallCube4" type="StaticBody3D" parent="." unique_id=564911291]
+transform = Transform3D(4.345, 0, 0, 0, 4.345, 0, 0, 0, 4.345, 9.158311, 1.9042301, -11.218454)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube4" unique_id=2049735665]
+shape = SubResource("BoxShape3D_small1")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube4" unique_id=244088842]
+material_override = SubResource("StandardMaterial3D_cube")
+mesh = SubResource("BoxMesh_small1")
+
+[node name="SmallCube5" type="StaticBody3D" parent="." unique_id=1452777487]
+transform = Transform3D(7.7, 0, 0, 0, 6.195, 0, 0, 0, 0.615, -10.789523, 0.54006815, -2.9653807)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube5" unique_id=2036541616]
+shape = SubResource("BoxShape3D_small1")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube5" unique_id=445834970]
+material_override = SubResource("StandardMaterial3D_cube")
+gi_lightmap_texel_scale = 0.3321
+mesh = SubResource("BoxMesh_small1")
+
+[node name="SmallCube6" type="StaticBody3D" parent="." unique_id=1063593529]
+transform = Transform3D(7.7, 0, 0, 0, 6.195, 0, 0, 0, 0.615, -10.789523, 0.54006815, 6.199854)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube6" unique_id=1671154481]
+shape = SubResource("BoxShape3D_small1")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube6" unique_id=58740067]
+material_override = SubResource("StandardMaterial3D_cube")
+gi_lightmap_texel_scale = 0.2386
+mesh = SubResource("BoxMesh_small1")
+
+[node name="SmallCube7" type="StaticBody3D" parent="." unique_id=18568778]
+transform = Transform3D(-3.3657767e-07, 0, 0.615, 0, 6.195, 0, -7.7, 0, -2.6882503e-08, -15.965416, 0.54006815, 1.4229193)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube7" unique_id=990445643]
+shape = SubResource("BoxShape3D_small1")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube7" unique_id=2014347642]
+material_override = SubResource("StandardMaterial3D_cube")
+gi_lightmap_texel_scale = 0.274
+mesh = SubResource("BoxMesh_small1")
+
+[node name="SmallCube8" type="StaticBody3D" parent="." unique_id=1457888191]
+transform = Transform3D(-3.315509e-07, 7.79, -2.6882503e-08, 0, -3.4051172e-07, -0.615, -7.585, -3.4051172e-07, 1.1750715e-15, -10.169688, 5.312061, 1.2174673)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="SmallCube8" unique_id=1869173216]
+shape = SubResource("BoxShape3D_small1")
+
+[node name="Mesh" type="MeshInstance3D" parent="SmallCube8" unique_id=815623857]
+material_override = SubResource("StandardMaterial3D_cube")
+mesh = SubResource("BoxMesh_small1")
+
 [node name="SmallCube2" type="StaticBody3D" parent="." unique_id=158210913]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.75, 10)
 

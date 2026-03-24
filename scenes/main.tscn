@@ -17,9 +17,17 @@ sky = SubResource("Sky_tbgi4")
 ambient_light_source = 3
 ssr_enabled = true
 ssao_enabled = true
+ssao_radius = 0.95
 ssil_enabled = true
-sdfgi_enabled = true
+ssil_radius = 1.75
+ssil_intensity = 2.39
+ssil_sharpness = 0.9
 glow_enabled = true
+glow_intensity = 0.04
+glow_strength = 1.72
+glow_mix = 0.009
+glow_blend_mode = 4
+glow_hdr_scale = 2.06
 
 [node name="Main" type="Node3D" unique_id=1734070863]
 

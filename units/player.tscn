@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://c7pg1o5p4ijpe"]
 
 [ext_resource type="Script" uid="uid://kj2shg0vpbor" path="res://scripts/multiplayer_player.gd" id="1_wegok"]
-[ext_resource type="PackedScene" uid="uid://xen2uvqbfkoe" path="res://n_4a_4.tscn" id="2_yufpt"]
+[ext_resource type="PackedScene" uid="uid://dwf4pljhja8so" path="res://n_5a_4.tscn" id="2_wegok"]
+
+[sub_resource type="AudioStream" id="AudioStream_wegok"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_g2els"]
 
@@ -20,11 +22,14 @@ script = ExtResource("1_wegok")
 [node name="WeaponModelPivot" type="Node3D" parent="." unique_id=1054157249]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
 
-[node name="N4A4" parent="WeaponModelPivot" unique_id=1934699147 instance=ExtResource("2_yufpt")]
-transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0.13, -0.4, -0.49)
+[node name="N5A4" parent="WeaponModelPivot" unique_id=2058921083 instance=ExtResource("2_wegok")]
+transform = Transform3D(-0.8, 0, -1.2079664e-07, 0, 0.8, 0, 1.2079664e-07, 0, -0.8, 0.058, -0.4242108, -0.455)
 
-[node name="WeaponSocket" type="Node3D" parent="WeaponModelPivot/N4A4" unique_id=771395905]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.010533161, 0.07718611, 0.9199369)
+[node name="WeaponSocket" type="Node3D" parent="WeaponModelPivot/N5A4" unique_id=771395905]
+transform = Transform3D(1.25, 0, 0, 0, 1.25, 0, 0, 0, 1.25, -0.10107573, 0.13611412, 1.2012302)
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="WeaponModelPivot/N5A4/WeaponSocket" unique_id=1754038035]
+stream = SubResource("AudioStream_wegok")
 
 [node name="CameraPivot" type="Node3D" parent="." unique_id=606961944]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
