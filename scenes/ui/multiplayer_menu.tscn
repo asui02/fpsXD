@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://mp_menu001"]
+[gd_scene format=3 uid="uid://dxcdnphahlq6j"]
 
-[node name="MultiplayerMenu" type="Control"]
+[node name="MultiplayerMenu" type="Control" unique_id=660317513]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -8,7 +8,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=725184969]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -17,7 +17,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.1, 0.1, 0.15, 0.9)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2144175040]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -33,29 +33,26 @@ grow_vertical = 2
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="Title" type="Label" parent="VBoxContainer"]
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=1987390830]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "FPS xD Multiplayer"
 horizontal_alignment = 1
 
-[node name="HostButton" type="Button" parent="VBoxContainer"]
+[node name="HostButton" type="Button" parent="VBoxContainer" unique_id=1481750950]
 custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
 text = "Host Game"
 
-[node name="JoinButton" type="Button" parent="VBoxContainer"]
+[node name="JoinButton" type="Button" parent="VBoxContainer" unique_id=1760006240]
 custom_minimum_size = Vector2(200, 40)
 layout_mode = 2
 text = "Join Game"
 
-[node name="AddressEdit" type="LineEdit" parent="VBoxContainer"]
-custom_minimum_size = Vector2(200, 30)
-layout_mode = 2
-placeholder_text = "Server IP (localhost)"
-text = "localhost"
-
-[node name="StatusLabel" type="Label" parent="VBoxContainer"]
+[node name="StatusLabel" type="Label" parent="VBoxContainer" unique_id=1704444693]
 layout_mode = 2
 text = "Ready"
 horizontal_alignment = 1
+
+[node name="LobbyList" type="VBoxContainer" parent="VBoxContainer" unique_id=75352642]
+layout_mode = 2
