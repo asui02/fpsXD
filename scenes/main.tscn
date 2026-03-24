@@ -5,9 +5,20 @@
 [ext_resource type="Script" uid="uid://q0la3sqc7jed" path="res://scripts/network_manager.gd" id="4_network_script"]
 [ext_resource type="Script" uid="uid://d3eixyf48f8iq" path="res://scripts/multiplayer_menu.gd" id="5_menu_script"]
 
-[sub_resource type="Environment" id="Environment_main"]
-background_mode = 1
-ambient_light_sky_contribution = 0.5
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_jyhfs"]
+
+[sub_resource type="Sky" id="Sky_tbgi4"]
+sky_material = SubResource("ProceduralSkyMaterial_jyhfs")
+process_mode = 1
+
+[sub_resource type="Environment" id="Environment_tefeu"]
+background_mode = 2
+sky = SubResource("Sky_tbgi4")
+ambient_light_source = 3
+ssr_enabled = true
+ssao_enabled = true
+ssil_enabled = true
+sdfgi_enabled = true
 glow_enabled = true
 
 [node name="Main" type="Node3D" unique_id=1734070863]
@@ -19,12 +30,14 @@ script = ExtResource("4_network_script")
 
 [node name="DirectionalLight" type="DirectionalLight3D" parent="." unique_id=379498534]
 transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 5, 10, 5)
+light_energy = 2.562
+light_indirect_energy = 1.606
 shadow_enabled = true
+shadow_bias = 0.04
+shadow_blur = 0.717
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1331191211]
-
-[node name="Environment" type="Environment" parent="WorldEnvironment" unique_id=934321519]
-environment = SubResource("Environment_main")
+environment = SubResource("Environment_tefeu")
 
 [node name="MultiplayerMenu" parent="." unique_id=1704990637 instance=ExtResource("3_menu")]
 script = ExtResource("5_menu_script")

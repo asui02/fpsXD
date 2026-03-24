@@ -19,19 +19,23 @@ class_name MultiplayerPlayer
 @onready var camera: Camera3D = $CameraPivot/Camera
 @onready var mesh: MeshInstance3D = $CapsuleMesh
 @onready var weapon_socket: Node3D = $CameraPivot/WeaponSocket
+@onready var weapon_model: Node3D = $WeaponModelPivot
 # Коллизия настраивается в редакторе (CollisionShape3D)
 
 # --- ОРУЖИЕ ---
 @export_group("Weapon")
 const BULLET_SCENE: PackedScene = preload("res://units/Bullet.tscn")
 
-
+var time: float = 0.0
 var health: float = 100.0
 
 var can_shoot: bool = true
-var fire_rate: float = 0.15  # Задержка между выстрелами
+var fire_rate: float = 0.08  # Задержка между выстрелами
 
 var multiplayer_id: int = 1
+
+var WeaponPivotStartPos: Vector3
+var WeaponPivotStartRot: Vector3
 
 # Network sync
 var network_position: Vector3
@@ -39,6 +43,7 @@ var network_rotation: Vector3
 var position_smooth: float = 0.1
 
 func _ready() -> void:
+	WeaponPivotStartPos = weapon_model.position
 	multiplayer_id = multiplayer.get_unique_id()
 
 	# Настройка камеры
@@ -69,10 +74,19 @@ func _input(event: InputEvent) -> void:
 		rotate_y(-mouse_delta.x * mouse_sensitivity)
 		camera_pivot.rotate_x(-mouse_delta.y * mouse_sensitivity)
 		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, -PI/2, PI/2)
+		weapon_model.rotation = lerp(weapon_model.rotation, camera_pivot.rotation - Vector3.UP * -mouse_delta.x, 0.001)
 		
 		rpc("sync_rotation", rotation.y, camera_pivot.rotation.x)
+
+func _process(delta: float) -> void:
+		
+	if weapon_model.rotation != camera_pivot.rotation:
+		weapon_model.rotation = lerp(weapon_model.rotation, camera_pivot.rotation, delta * 10)
+		
+	if not is_local_player:
+		return
 	
-	# Стрельба
+	# ✅ Автоматическая стрельба: проверяем каждый кадр
 	if Input.is_action_pressed("shoot") and can_shoot:
 		shoot()
 
@@ -98,7 +112,13 @@ func _physics_process(delta: float) -> void:
 	if direction:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
+		time += delta  # Увеличиваем время каждый кадр
+		var value = sin(time) 
+		weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.05)), delta * 10)
+		weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.05), delta * 10)
+		print_debug(sin(time))
 	else:
+		weapon_model.position = lerp(weapon_model.position, WeaponPivotStartPos, delta * 10)
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
 	
@@ -115,6 +135,12 @@ func shoot() -> void:
 	spawn_bullet(shoot_dir)
 	
 	rpc_id(multiplayer_id, "rpc_spawn_bullet", shoot_dir)
+	animShoot()
+	
+func animShoot() -> void:
+	weapon_model.position.z = WeaponPivotStartPos.z + 0.1
+	weapon_model.rotation = weapon_model.rotation - Vector3.LEFT * 0.02
+	
 
 @rpc("any_peer", "call_remote", "unreliable")
 func rpc_spawn_bullet(dir: Vector3) -> void:
