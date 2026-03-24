@@ -18,7 +18,8 @@ class_name MultiplayerPlayer
 @onready var camera_pivot: Node3D = $CameraPivot
 @onready var camera: Camera3D = $CameraPivot/Camera
 @onready var mesh: MeshInstance3D = $CapsuleMesh
-@onready var weapon_socket: Node3D = $CameraPivot/WeaponSocket
+@onready var weapon_socket: Node3D = $WeaponModelPivot/N4A4/WeaponSocket
+@onready var weapon_model1: Node3D = $WeaponModelPivot/N4A4
 @onready var weapon_model: Node3D = $WeaponModelPivot
 # Коллизия настраивается в редакторе (CollisionShape3D)
 
@@ -30,20 +31,27 @@ var time: float = 0.0
 var health: float = 100.0
 
 var can_shoot: bool = true
-var fire_rate: float = 0.08  # Задержка между выстрелами
+var fire_rate: float = 0.1  # Задержка между выстрелами
+var fire_timer: float = 0.0
 
 var multiplayer_id: int = 1
 
 var WeaponPivotStartPos: Vector3
 var WeaponPivotStartRot: Vector3
+var WeaponPivot1StartRot: Vector3
+var Weapon_SocketStartRot: Vector3
 
 # Network sync
 var network_position: Vector3
 var network_rotation: Vector3
 var position_smooth: float = 0.1
 
+var sprint: bool = false
+
 func _ready() -> void:
 	WeaponPivotStartPos = weapon_model.position
+	WeaponPivot1StartRot = weapon_model1.rotation
+	Weapon_SocketStartRot = weapon_socket.rotation
 	multiplayer_id = multiplayer.get_unique_id()
 
 	# Настройка камеры
@@ -74,12 +82,14 @@ func _input(event: InputEvent) -> void:
 		rotate_y(-mouse_delta.x * mouse_sensitivity)
 		camera_pivot.rotate_x(-mouse_delta.y * mouse_sensitivity)
 		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, -PI/2, PI/2)
-		weapon_model.rotation = lerp(weapon_model.rotation, camera_pivot.rotation - Vector3.UP * -mouse_delta.x, 0.001)
-		
+		weapon_model.rotation = lerp(weapon_model.rotation, camera_pivot.rotation - Vector3.UP * -mouse_delta.x, 0.0014)
+		weapon_model.rotation.z = lerp(weapon_model.rotation.z, camera_pivot.rotation.z - mouse_delta.x, 0.0001)
+		weapon_model.rotation.y = clamp(weapon_model.rotation.y, -PI/10, PI/10)
+		weapon_model.rotation.y = clamp(weapon_model.rotation.z, -PI/30, PI/30)
 		rpc("sync_rotation", rotation.y, camera_pivot.rotation.x)
 
 func _process(delta: float) -> void:
-		
+	
 	if weapon_model.rotation != camera_pivot.rotation:
 		weapon_model.rotation = lerp(weapon_model.rotation, camera_pivot.rotation, delta * 10)
 		
@@ -87,10 +97,23 @@ func _process(delta: float) -> void:
 		return
 	
 	# ✅ Автоматическая стрельба: проверяем каждый кадр
+	if Input.is_action_pressed("sprint"):
+		sprint = true
+	else:
+		sprint = false
 	if Input.is_action_pressed("shoot") and can_shoot:
 		shoot()
 
 func _physics_process(delta: float) -> void:
+	if sprint:
+		can_shoot = false
+	else:
+		if fire_timer <= 0:
+			can_shoot = true
+		else:
+			can_shoot = false
+	if fire_timer >= 0:
+		fire_timer -= delta
 	if not is_local_player:
 		# Remote player: smooth interpolation
 		global_position = lerp(global_position, network_position, position_smooth)
@@ -109,15 +132,26 @@ func _physics_process(delta: float) -> void:
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
+	weapon_socket.rotation = lerp(weapon_socket.rotation, Weapon_SocketStartRot, delta * 0.1)
+	
 	if direction:
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
+		if sprint:
+			velocity.x = direction.x * 2.25 * speed
+			velocity.z = direction.z * 2.25 * speed
+			weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.05)), delta * 40)
+			weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.05), delta * 40)
+			weapon_model1.rotation.y = lerp(weapon_model1.rotation.y,WeaponPivot1StartRot.y + PI/3, delta * 10)
+		else:
+			velocity.x = direction.x * speed
+			velocity.z = direction.z * speed
+			weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.02)), delta * 10)
+			weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.02), delta * 10)
+			weapon_model1.rotation.y = lerp(weapon_model1.rotation.y, WeaponPivot1StartRot.y, delta * 10)
 		time += delta  # Увеличиваем время каждый кадр
 		var value = sin(time) 
-		weapon_model.position.y = lerp(weapon_model.position.y, WeaponPivotStartPos.y + (abs(sin(time*7)*0.05)), delta * 10)
-		weapon_model.position.x = lerp(weapon_model.position.x, WeaponPivotStartPos.x + (cos(time*7)*0.05), delta * 10)
-		print_debug(sin(time))
+		weapon_model.position.z = lerp(weapon_model.position.z, WeaponPivotStartPos.z, delta * 10)
 	else:
+		weapon_model1.rotation.y = lerp(weapon_model1.rotation.y, WeaponPivot1StartRot.y, delta * 10)
 		weapon_model.position = lerp(weapon_model.position, WeaponPivotStartPos, delta * 10)
 		velocity.x = move_toward(velocity.x, 0, speed)
 		velocity.z = move_toward(velocity.z, 0, speed)
@@ -129,17 +163,18 @@ func _physics_process(delta: float) -> void:
 
 func shoot() -> void:
 	can_shoot = false
-	get_tree().create_timer(fire_rate).timeout.connect(func(): can_shoot = true)
+	fire_timer = fire_rate
 	
-	var shoot_dir = -camera.global_transform.basis.z
+	var shoot_dir = weapon_socket.global_transform.basis.z
 	spawn_bullet(shoot_dir)
 	
 	rpc_id(multiplayer_id, "rpc_spawn_bullet", shoot_dir)
 	animShoot()
 	
 func animShoot() -> void:
-	weapon_model.position.z = WeaponPivotStartPos.z + 0.1
-	weapon_model.rotation = weapon_model.rotation - Vector3.LEFT * 0.02
+	weapon_model.position.z = WeaponPivotStartPos.z + 0.05
+	weapon_model.rotation = weapon_model.rotation - Vector3.LEFT * 0.03 * (randf_range(-1, 1))
+	weapon_model.rotation = weapon_model.rotation - Vector3.RIGHT * 0.03 * (randf_range(-1, 1))
 	
 
 @rpc("any_peer", "call_remote", "unreliable")
@@ -151,8 +186,12 @@ func spawn_bullet(dir: Vector3) -> void:
 	
 	# Если WeaponSocket не найден — спавним у камеры
 	var spawn_pos = weapon_socket.global_position if weapon_socket else camera_pivot.global_position
+	var spawn_rot = weapon_socket.global_rotation if weapon_socket else camera_pivot.global_rotation
+	weapon_socket.rotation.y = Weapon_SocketStartRot.y + randf_range(-1, 1)/20
+	weapon_socket.rotation.x = Weapon_SocketStartRot.x + randf_range(-1, 1)/20
 	
 	bullet.global_position = spawn_pos
+	bullet.rotation = spawn_rot
 	bullet.initialize(dir, multiplayer_id)
 	
 	get_tree().current_scene.add_child(bullet)

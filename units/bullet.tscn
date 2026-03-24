@@ -20,6 +20,6 @@ transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 shape = SubResource("SphereShape3D_rtl8c")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D" unique_id=40396463]
-transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+transform = Transform3D(0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0)
 mesh = SubResource("SphereMesh_rtl8c")
 surface_material_override/0 = SubResource("StandardMaterial3D_1ewpb")

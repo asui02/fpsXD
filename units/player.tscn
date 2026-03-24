@@ -18,10 +18,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 script = ExtResource("1_wegok")
 
 [node name="WeaponModelPivot" type="Node3D" parent="." unique_id=1054157249]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.075, 1.3870847, -0.070878506)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
 
 [node name="N4A4" parent="WeaponModelPivot" unique_id=1934699147 instance=ExtResource("2_yufpt")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.19984396, -0.15001893, -0.4165081)
+transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0.13, -0.4, -0.49)
+
+[node name="WeaponSocket" type="Node3D" parent="WeaponModelPivot/N4A4" unique_id=771395905]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.010533161, 0.07718611, 0.9199369)
 
 [node name="CameraPivot" type="Node3D" parent="." unique_id=606961944]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
@@ -30,9 +33,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CameraPivot/Camera" unique_id=315755356]
 mesh = SubResource("SphereMesh_g2els")
-
-[node name="WeaponSocket" type="Node3D" parent="CameraPivot" unique_id=771395905]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.11946675, -0.43810368, -1.4099369)
 
 [node name="CapsuleCollision" type="CollisionShape3D" parent="." unique_id=900825679]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -0.0007054806, 0)

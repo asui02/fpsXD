@@ -24,7 +24,7 @@ func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 func _process(delta: float) -> void:
 	var distance = (startPos - position).length()
-	bulletModel.scale = Vector3.ONE/10 * distance/2.5
+	bulletModel.scale = Vector3.ONE/10 * distance/2.5 + Vector3.FORWARD * 5
 	
 func _physics_process(delta: float) -> void:
 	velocity.y -= 9.8 * delta  # Или: velocity += Vector3.DOWN * 9.8 * delta
